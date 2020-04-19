@@ -19,6 +19,7 @@ public class PlayerController : MonoBehaviour
     public float fireRate;
     private float nextFire;
     public AudioSource sound;
+    public bool powerup;
 
     private void Start()
     {
@@ -30,10 +31,22 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetButton("Fire1") && Time.time > nextFire)
         {
-            nextFire = Time.time + fireRate;
-            // GameObject clone = 
-            Instantiate(shot, shotSpawn.position, shotSpawn.rotation);// as GameObject
-            sound.Play();
+            if(powerup == false)
+            {
+                nextFire = Time.time + fireRate;
+                // GameObject clone = 
+                Instantiate(shot, shotSpawn.position, shotSpawn.rotation);// as GameObject
+                sound.Play();
+            }
+            else
+            {
+                nextFire = Time.time + fireRate;
+                Instantiate(shot, shotSpawn.position + new Vector3(1,0,0), shotSpawn.rotation);
+                Instantiate(shot, shotSpawn.position + new Vector3(-1, 0, 0), shotSpawn.rotation);
+                Instantiate(shot, shotSpawn.position, shotSpawn.rotation);
+                nextFire = Time.time + fireRate;
+            }
+
         }
     }
 
@@ -53,6 +66,12 @@ public class PlayerController : MonoBehaviour
         );
 
         rb.rotation = Quaternion.Euler(0.0f, 0.0f, rb.velocity.x * -tilt);
+    }
+    public IEnumerator PowerUp()
+    {
+        powerup = true;
+        yield return new WaitForSeconds(3);
+        powerup = false;
     }
 }
 

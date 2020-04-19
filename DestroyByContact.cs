@@ -8,6 +8,7 @@ public class DestroyByContact : MonoBehaviour
     public GameObject playerExplosion;
     private GameController gameController;
     public int scoreValue = 10;
+    public int timeValue = 1;
     private void Start()
     {
         GameObject gameControllerObject = GameObject.FindWithTag("GameController");
@@ -18,7 +19,7 @@ public class DestroyByContact : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag ("Boundary") || other.CompareTag ("Enemy"))
+        if (other.CompareTag ("Boundary") || other.CompareTag ("Enemy") || other.CompareTag ("PowerUp"))
         {
             return;
         }
@@ -31,6 +32,7 @@ public class DestroyByContact : MonoBehaviour
             gameController.GameOver();
         }
         gameController.AddScore(scoreValue);
+        gameController.AddTime(timeValue);
         Destroy(other.gameObject);
         Destroy(gameObject);
     }

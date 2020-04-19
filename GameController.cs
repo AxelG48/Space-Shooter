@@ -23,6 +23,18 @@ public class GameController : MonoBehaviour
     private bool gameOver;
     private bool restart;
 
+    public ParticleSystem starfield0;
+    public ParticleSystem starfield1;
+    public MeshCollider player;
+    public GameObject background;
+    private BGScroller scroller;
+
+    public AudioClip winAudio;
+    public AudioClip loseAudio;
+    public AudioSource audioSource;
+    public float timer = 6;
+    public Text timerText;
+    public GameObject powerup;
     void Start()
     {
         gameOver = false;
@@ -30,13 +42,24 @@ public class GameController : MonoBehaviour
         restartText.text = "";
         gameOverText.text = "";
         winText.text = "";
-
+        scroller = background.GetComponent<BGScroller>();
+        audioSource = GetComponent<AudioSource>();
         score = 0;
         UpdateScore();
         StartCoroutine(SpawnWaves());
     }
     private void Update()
     {
+        timer -= Time.deltaTime;
+        timerText.text = "Time Left: " + timer.ToString("##");
+        if (timer <= 0)
+        {
+            timerText.text = "Time Left: 0";
+            if (gameOver == false)
+            {
+                GameOver();
+            }
+        }
         if (restart)
         {
             if (Input.GetKeyDown(KeyCode.F))
@@ -53,8 +76,10 @@ public class GameController : MonoBehaviour
     IEnumerator SpawnWaves()
     {
         yield return new WaitForSeconds(startWait);
+
         while (true)
         {
+            Instantiate(powerup, new Vector3(Random.Range(-spawnValues.x, spawnValues.x), spawnValues.y, spawnValues.z), Quaternion.identity);
             for (int i = 0; i < hazardCount; i++)
             {
                 GameObject hazard = hazards[Random.Range(0, hazards.Length)];
@@ -81,18 +106,33 @@ public class GameController : MonoBehaviour
 
     void UpdateScore()
     {
-        ScoreText.text = "Score: " + score;
+        ScoreText.text = "Points: " + score;
         if(score >= 100)
         {
             winText.text = "GAME CREATED BY ALEXANDER GRANT";
+            var main0 = starfield0.main;
+            main0.simulationSpeed = 100f;
+            var main1 = starfield1.main;
+            main1.simulationSpeed = 100;
+            player.enabled = false;
+            scroller.scrollSpeed = -10;
+            audioSource.clip = winAudio;
+            audioSource.Play();
+            audioSource.volume = 1;
             gameOver = true;
             restart = true;
         }
     }
-
+  
     public void GameOver ()
     {
+        audioSource.clip = loseAudio;
+        audioSource.Play();
         gameOverText.text = "Game Over!";
         gameOver = true;
+    }
+    public void AddTime(int timeadded)
+    {
+        timer += timeadded;
     }
 }
